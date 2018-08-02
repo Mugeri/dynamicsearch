@@ -1,4 +1,4 @@
-function rootReducer(state, action) {
+function search(state={}, action) {
   switch (action.type) {
     case 'SEARCH_REQUEST':
       return Object.assign({}, state, { isLoading: true, searchQuery: action.payload });
@@ -14,4 +14,4 @@ function rootReducer(state, action) {
   }
 }
 
-export default rootReducer;
+export default search;

@@ -1,6 +1,5 @@
 import friends from '../friends';
 
-
 export const searchFailure = error => ({
   type: 'SEARCH_FAILURE',
   error,
@@ -20,11 +19,13 @@ export function search(searchQuery) {
   return (dispatch) => {
     dispatch(searchRequest());
 
-    searchApi(searchQuery)
-    .then((results) => {
-      dispatch(searchSuccess(results));
-    })
-    .catch(error => dispatch(searchFailure(error)));
+    if(searchQuery){
+      searchApi(searchQuery)
+      .then((results) => {
+        dispatch(searchSuccess(results));
+      })
+      .catch(error => dispatch(searchFailure(error)));
+    }
   };
 }
 

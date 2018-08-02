@@ -26,8 +26,11 @@
   border: solid;
   border-width: thin;
   padding: 2%;
-  background: lightgray;
+  background: gainsboro;
   margin:1% 0;
+}
+.App .username {
+  color: gray;
 }
 .input-box {
   border: solid;

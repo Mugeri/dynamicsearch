@@ -7,64 +7,90 @@ import { connect } from 'react-redux';
 class App extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       searchQuery: '',
     };
-    this.handleChange = this.handleChange.bind(this);
+
     this.displayResults = this.displayResults.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.handleClear = this.handleClear.bind(this);
   }
 
   componentDidMount() {
-      const searchQuery = window.location.search.replace('?q=', '');
-      if (searchQuery) {
-        this.setState({
-          searchQuery: searchQuery
-        });
-        this.props.search(searchQuery);
-      }
-      window.addEventListener('popstate', this.handleChange);
-  }
-  componentWillMount() {
-      window.removeEventListener('popstate', this.handleChange);
-  }
-
-  componentDidUpdate(prevProps) {
-    // Typical usage (don't forget to compare props):
-    if (this.props.results !== prevProps.results) {
-      this.displayResults(this.props.results);;
-    }
-  }
-  handleChange(e) {
-    const query = e.target.value;
     const searchQuery = window.location.search.replace('?q=', '');
-
-    if (searchQuery === this.state.searchQuery) {
-      return this.setState({
-        searchQuery: query
-      }, () => {
-        if(query) {
-          window.history.pushState({path:query},'',`?q=${query}`);
-        }
-        if(!query && this.state.searchQuery === '') {
-          window.history.pushState({path:query},'','/');
-        }
-          return this.props.search(searchQuery);
-
-      });
+    if (searchQuery) {
+      this.setState({
+        searchQuery: searchQuery
+      },
+      this.props.search(searchQuery));
     }
+    window.addEventListener('popstate', this.handleChange);
+  }
 
-    this.setState({
-      searchQuery: searchQuery
-    }, this.props.search(searchQuery));
+  componentWillMount() {
+    window.removeEventListener('popstate', this.handleChange);
   }
 
   displayResults(results) {
     if(results) {
       return results.map((result) => {
-        return <p className="list" key={result.id}> {result.name} </p>
+        return <p className="list" key={result.id}> {result.name}<span className='username'>{result.username}</span> </p>
       });
     }
   }
+
+  handleChange(e) {
+    let inputValue = e.target.value;
+    const searchQuery = window.location.search.replace('?q=', '');
+
+    if (searchQuery === this.state.searchQuery && searchQuery !== '') {
+      return this.setState({
+        searchQuery: inputValue
+      }, () => {
+        // update on typing in input
+        if(inputValue) {
+          window.history.pushState({path:inputValue},'',`?q=${inputValue}`);
+        }
+        // clear on delete in input
+        if(!inputValue && this.state.searchQuery === '') {
+          window.history.pushState({path:inputValue},'','/');
+        }
+          return this.props.search(inputValue);
+
+      });
+    }
+    //when using the back and front browser buttons
+    if(!inputValue) {
+      inputValue = searchQuery;
+      return this.setState({
+        searchQuery: inputValue
+      }, () => {
+        return this.props.search(inputValue);
+      });
+    }
+
+    //first search
+    this.setState({
+      searchQuery: inputValue
+    }, () => {
+      if(inputValue !== ''){
+        window.history.pushState({path:inputValue},'',`?q=${inputValue}`);
+        this.props.search(inputValue);
+      }
+    });
+  }
+
+  handleClear() {
+    this.setState({
+      searchQuery: ''
+    },() => {
+      window.history.pushState({},'','/');
+      this.props.search('');
+    })
+  }
+
+
   render() {
     const {
       results
@@ -81,7 +107,13 @@ class App extends Component {
               onChange={this.handleChange}
               value={this.state.searchQuery}
           />
-          <img className="icon" src={clear} />
+          {this.state.searchQuery !== '' &&
+           <img
+            className="icon"
+            src={clear}
+            onClick={this.handleClear}
+            alt='clear icon'
+            />}
         </div>
         <div className="results">
           {this.state.searchQuery !== '' && this.displayResults(results)}
@@ -92,12 +124,12 @@ class App extends Component {
 }
 const mapStateToProps = state => ({
   results: state.results,
-  error: state.index,
+  error: state.error,
   isLoading: state.isLoading,
 });
 const mapDispatchToProps = dispatch => ({
-  search: (query) => {
-    dispatch(search(query));
+  search: (searchQuery) => {
+    dispatch(search(searchQuery));
   },
 })
 

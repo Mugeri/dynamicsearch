@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react'
+import { Provider } from 'react-redux';
 
-import './index.css';
 import App from './components/App';
 import configureStore from './store';
 import registerServiceWorker from './registerServiceWorker';
+import './index.css';
 
 const {
   store,
